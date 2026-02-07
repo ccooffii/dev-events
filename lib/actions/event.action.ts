@@ -1,22 +1,35 @@
-'use server'
+'use server';
 
-import { connectToDatabase } from "../mongodb";
-import { Event } from "@/database";
+import Event from '@/database/event.model';
+import { connectToDatabase } from "@/lib/mongodb";
+
+export const getEventBySlug = async (slug: string) => {
+    try {
+        await connectToDatabase();
+        return await Event.findOne({ slug });
+    } catch (error) {
+        console.error(error);
+        throw new Error('Failed to fetch event');
+    }
+}
+
+export const getAllEvents = async () => {
+    try {
+        await connectToDatabase();
+        return await Event.find().sort({ createdAt: -1 });
+    } catch (error) {
+        console.error(error);
+        throw new Error('Failed to fetch events');
+    }
+}
 
 export const getSimilarEventsBySlug = async (slug: string) => {
-  try {
-    await connectToDatabase();
+    try {
+        await connectToDatabase();
+        const event = await Event.findOne({ slug });
 
-    const event = await Event.findOne({ slug }).lean();
-    if (!event) return [];
-
-    return await Event.find({
-      _id: { $ne: event._id },
-      tags: { $in: event.tags },
-    })
-      .limit(4)
-      .lean();
-  } catch {
-    return [];
-  }
-};
+        return await Event.find({ _id: { $ne: event._id }, tags: { $in: event.tags } }).lean();
+    } catch {
+        return [];
+    }
+}
