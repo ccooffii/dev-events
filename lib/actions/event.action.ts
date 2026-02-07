@@ -6,7 +6,7 @@ import { connectToDatabase } from "@/lib/mongodb";
 export const getEventBySlug = async (slug: string) => {
     try {
         await connectToDatabase();
-        return await Event.findOne({ slug });
+        return await Event.findOne({ slug }).lean();
     } catch (error) {
         console.error(error);
         throw new Error('Failed to fetch event');
@@ -16,7 +16,7 @@ export const getEventBySlug = async (slug: string) => {
 export const getAllEvents = async () => {
     try {
         await connectToDatabase();
-        return await Event.find().sort({ createdAt: -1 });
+        return await Event.find().sort({ createdAt: -1 }).lean();
     } catch (error) {
         console.error(error);
         throw new Error('Failed to fetch events');
